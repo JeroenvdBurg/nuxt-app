@@ -1,0 +1,11 @@
+{
+  "$schema": "https://aka.ms/azure/static-web-apps-cli/schema",
+  "configurations": {
+    "nuxt-app": {
+      "appLocation": ".",
+      "apiLocation": "api",
+      "outputLocation": ".output/public",
+      "appBuildCommand": "npm run generate"
+    }
+  }
+}
