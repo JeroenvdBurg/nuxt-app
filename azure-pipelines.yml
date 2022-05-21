@@ -22,7 +22,7 @@ name: '$(VersionMajor).$(VersionMinor).$(Date:yy)$(DayOfYear).$(Version.Revision
 
 
 jobs:
-  - job: Build
+  - job: dotNET-Api
     displayName: 'Build .NET'
     steps:
     - task: UseDotNet@2
@@ -54,7 +54,7 @@ jobs:
           artifact: 'Api'
           publishLocation: 'pipeline'
 
-  - job: Nuxt Build
+  - job: Nuxt-webapp
     displayName: 'Build nuxt webapp'
     variables:
       projectSource: 'frontend'
