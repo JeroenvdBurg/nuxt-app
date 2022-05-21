@@ -89,14 +89,14 @@ jobs:
         displayName: "Copy statics"
         inputs:
           SourceFolder: $(workingDir)/.output/public/
-          TargetFolder: '$(Build.ArtifactStagingDirectory)/'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/app'
 
 
       - task: CopyFiles@2
         displayName: "Copy proxy config"
         inputs:
           SourceFolder: $(workingDir)/api/
-          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/api'
 
           
       - task: PublishPipelineArtifact@1
