@@ -1,0 +1,110 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+trigger:
+  batch: true
+  branches:
+    include:
+      - '*'
+
+pool:
+  vmImage: 'ubuntu-latest'
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  Version.Revision: $[counter(format('{0:yyyyMMdd}', pipeline.startTime), 0)]
+  VersionMajor: 1
+  VersionMinor: 0
+
+name: '$(VersionMajor).$(VersionMinor).$(Date:yy)$(DayOfYear).$(Version.Revision)'
+
+
+jobs:
+  - job: Build
+    displayName: 'Build .NET'
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core'
+      inputs:
+        packageType: 'sdk'
+        version: '6.0.x'
+
+    - task: DotNetCoreCLI@2
+      displayName: "Build Solution"
+      inputs:
+        command: 'build'
+        projects: 'nuxtAPI/NuxtAPI.csproj'
+        arguments: '--configuration $(buildConfiguration) /p:Version=$(Build.BuildNumber)'
+
+    - task: DotNetCoreCLI@2
+      displayName: "Create Web Publish Packages"
+      inputs:
+        command: 'publish'
+        arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        publishWebProjects: false
+        projects: 'nuxtAPI/NuxtAPI.csproj'
+        zipAfterPublish: true
+
+    - task: PublishPipelineArtifact@1
+      displayName: 'Publish Artifacts'
+      inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: 'Api'
+          publishLocation: 'pipeline'
+
+  - job: Nuxt Build
+    displayName: 'Build nuxt webapp'
+    variables:
+      projectSource: 'frontend'
+      workingDir: '$(System.DefaultWorkingDirectory)/$(projectSource)'
+    
+    steps:
+      - task: UseNode@1
+        inputs:
+            version: '16.x'
+
+      - task: Npm@1
+        inputs:
+          workingDir: $(projectSource)
+          command: 'install'
+
+      - task: Npm@1
+        displayName: "Build .Next app"
+        inputs:
+            command: 'custom'
+            workingDir: $(projectSource)
+            customCommand: 'run build'
+        
+      - task: Npm@1
+        displayName: "Generate .Next app"
+        inputs:
+            command: 'custom'
+            workingDir: $(projectSource)
+            customCommand: 'run generate'
+      
+      - task: CopyFiles@2
+        displayName: "Copy statics"
+        inputs:
+          SourceFolder: $(workingDir)/.output/
+          TargetFolder: '$(workingDir)/publish/.output'
+
+      - task: CopyFiles@2
+        displayName: "Copy public"
+        inputs:
+          SourceFolder: $(workingDir)/api
+          TargetFolder: '$(workingDir)/publish/api'
+
+      - task: ArchiveFiles@2
+        inputs:
+          rootFolderOrFile: '$(workingDir)/publish/'    
+          archiveFile: $(Build.ArtifactStagingDirectory)/WebApp.zip
+          includeRootFolder: false
+      
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publish Artifacts'
+        inputs:
+          targetPath: '$(Build.ArtifactStagingDirectory)'
+          artifact: 'Apps'
+          publishLocation: 'pipeline'
