@@ -95,7 +95,8 @@ jobs:
         displayName: "Copy static web app configuration"
         inputs:
           Contents: '$(workingDir)/staticwebapp.config.json'
-          TargetFolder: '$(Build.ArtifactStagingDirectory)'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/'
+          flattenFolders: true
 
 
       - task: CopyFiles@2
