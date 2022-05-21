@@ -90,6 +90,12 @@ jobs:
         inputs:
           SourceFolder: $(workingDir)/.output/public/
           TargetFolder: '$(Build.ArtifactStagingDirectory)/app'
+        
+      - task: CopyFiles@2
+        displayName: "Copy static web app configuration"
+        inputs:
+          Contents: '$(workingDir)/staticwebapp.config.json'
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
 
       - task: CopyFiles@2
