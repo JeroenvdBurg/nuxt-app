@@ -364,3 +364,5 @@ FodyWeavers.xsd
 /frontend/.nuxt
 /frontend/.output
 /frontend/.vscode
+/.vscode
+/frontend/dist

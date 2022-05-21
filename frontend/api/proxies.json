@@ -8,7 +8,7 @@
                 ],
                 "route": "/api/{*path}"
             },
-            "backendUri": "https://localhost:7063/api/{path}"
+            "backendUri": "%API_URL%/api/{path}"
         }
     }
 }

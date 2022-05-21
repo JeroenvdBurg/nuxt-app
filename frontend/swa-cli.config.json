@@ -5,7 +5,9 @@
       "appLocation": ".",
       "apiLocation": "api",
       "outputLocation": ".output/public",
-      "appBuildCommand": "npm run generate"
+      "appBuildCommand": "npm run generate",
+      "appName": "my-nuxt-app",
+      "resourceGroupName": "my-nuxt-app-rg"
     }
   }
 }
