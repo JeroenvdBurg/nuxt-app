@@ -23,9 +23,7 @@ name: '$(VersionMajor).$(VersionMinor).$(Date:yy)$(DayOfYear).$(Version.Revision
 
 jobs:
   - job: dotNET_Api
-    displayName: 'Build .NET API'
-    variables:
-        projectSource: 'nuxtAPI/NuxtAPI.csproj'
+    displayName: 'Build .NET API'   
 
     steps:
     - task: UseDotNet@2
@@ -38,7 +36,7 @@ jobs:
       displayName: "Build project"
       inputs:
         command: 'build'
-        projects: projectSource
+        projects: '**/*.csproj'
         arguments: '--configuration $(buildConfiguration) /p:Version=$(Build.BuildNumber)'
 
     - task: DotNetCoreCLI@2
@@ -47,7 +45,7 @@ jobs:
         command: 'publish'
         arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         publishWebProjects: false
-        projects: projectSource
+        projects: '**/*.csproj'
         zipAfterPublish: true
 
     - task: PublishPipelineArtifact@1
@@ -90,14 +88,15 @@ jobs:
       - task: CopyFiles@2
         displayName: "Copy statics"
         inputs:
-          Contents: $(workingDir)/.output/public/**/*
-          TargetFolder: '$(Build.ArtifactStagingDirectory)/app/'
+          SourceFolder: $(workingDir)/.output/public/
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/'
+
 
       - task: CopyFiles@2
         displayName: "Copy proxy config"
         inputs:
-          Contents: $(workingDir)/api/**/*
-          TargetFolder: '$(Build.ArtifactStagingDirectory)/api'
+          SourceFolder: $(workingDir)/api/
+          TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
           
       - task: PublishPipelineArtifact@1
