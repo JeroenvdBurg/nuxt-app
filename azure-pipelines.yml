@@ -23,7 +23,10 @@ name: '$(VersionMajor).$(VersionMinor).$(Date:yy)$(DayOfYear).$(Version.Revision
 
 jobs:
   - job: dotNET_Api
-    displayName: 'Build .NET'
+    displayName: 'Build .NET API'
+    variables:
+        projectSource: 'nuxtAPI/NuxtAPI.csproj'
+
     steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core'
@@ -32,10 +35,10 @@ jobs:
         version: '6.0.x'
 
     - task: DotNetCoreCLI@2
-      displayName: "Build Solution"
+      displayName: "Build project"
       inputs:
         command: 'build'
-        projects: 'nuxtAPI/NuxtAPI.csproj'
+        projects: projectSource
         arguments: '--configuration $(buildConfiguration) /p:Version=$(Build.BuildNumber)'
 
     - task: DotNetCoreCLI@2
@@ -44,7 +47,7 @@ jobs:
         command: 'publish'
         arguments: '--no-build --configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         publishWebProjects: false
-        projects: 'nuxtAPI/NuxtAPI.csproj'
+        projects: projectSource
         zipAfterPublish: true
 
     - task: PublishPipelineArtifact@1
@@ -87,24 +90,19 @@ jobs:
       - task: CopyFiles@2
         displayName: "Copy statics"
         inputs:
-          SourceFolder: $(workingDir)/.output/
-          TargetFolder: '$(workingDir)/publish/.output'
+          Contents: $(workingDir)/.output/public/**/*
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/app/'
 
       - task: CopyFiles@2
-        displayName: "Copy public"
+        displayName: "Copy proxy config"
         inputs:
-          SourceFolder: $(workingDir)/api
-          TargetFolder: '$(workingDir)/publish/api'
+          Contents: $(workingDir)/api/**/*
+          TargetFolder: '$(Build.ArtifactStagingDirectory)/api'
 
-      - task: ArchiveFiles@2
-        inputs:
-          rootFolderOrFile: '$(workingDir)/publish/'    
-          archiveFile: $(Build.ArtifactStagingDirectory)/WebApp.zip
-          includeRootFolder: false
-      
+          
       - task: PublishPipelineArtifact@1
         displayName: 'Publish Artifacts'
         inputs:
           targetPath: '$(Build.ArtifactStagingDirectory)'
-          artifact: 'Apps'
+          artifact: 'WebApp'
           publishLocation: 'pipeline'
